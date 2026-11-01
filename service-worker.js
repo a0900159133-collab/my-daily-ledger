@@ -1,9 +1,11 @@
-const CACHE_NAME = "my-ledger-v2";
+
+const CACHE_NAME = "my-ledger-v3";
 
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
-  "./manifest.json"
+  "./manifest.json",
+  "./icon.svg"
 ];
 
 // 安裝時快取記帳本檔案
