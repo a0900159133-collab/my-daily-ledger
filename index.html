@@ -1,0 +1,567 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的日常記帳本</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Microsoft JhengHei", sans-serif;
+    background: #f5f7f5;
+    color: #333;
+}
+
+header {
+    background: white;
+    padding: 25px 40px;
+    border-bottom: 1px solid #e5eae6;
+}
+
+header h1 {
+    margin: 0;
+    color: #43866b;
+    font-size: 26px;
+}
+
+header p {
+    color: #888;
+    margin-bottom: 0;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.card {
+    background: white;
+    padding: 22px;
+    border-radius: 14px;
+    box-shadow: 0 2px 10px #00000008;
+}
+
+.card h3 {
+    color: #888;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.card p {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.income {
+    color: #43866b;
+}
+
+.expense {
+    color: #cc7169;
+}
+
+.panel {
+    background: white;
+    padding: 25px;
+    margin-top: 20px;
+    border-radius: 14px;
+    box-shadow: 0 2px 10px #00000008;
+}
+
+.panel h2 {
+    font-size: 19px;
+    margin-top: 0;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 7px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.form-grid label {
+    font-size: 13px;
+    color: #777;
+}
+
+button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #43866b;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+button:hover {
+    opacity: 0.85;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 13px 8px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    color: #888;
+    font-size: 13px;
+}
+
+.budget-bar {
+    height: 12px;
+    background: #e8eee9;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 15px;
+}
+
+.budget-fill {
+    height: 100%;
+    width: 0%;
+    background: #43866b;
+}
+
+@media(max-width:650px) {
+    .summary {
+        grid-template-columns: 1fr;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>☘ 我的日常記帳本</h1>
+    <p>簡單記錄每一筆，掌握自己的生活</p>
+</header>
+
+<div class="container">
+
+    <div class="summary">
+
+        <div class="card">
+            <h3>本月收入</h3>
+            <p class="income" id="income">$0</p>
+        </div>
+
+        <div class="card">
+            <h3>本月支出</h3>
+            <p class="expense" id="expense">$0</p>
+        </div>
+
+        <div class="card">
+            <h3>目前結餘</h3>
+            <p id="balance">$0</p>
+        </div>
+
+    </div>
+
+    <section class="panel">
+        <h2>📝 新增收支紀錄</h2>
+
+        <form id="recordForm">
+
+            <div class="form-grid">
+
+                <label>
+                    收支類型
+                    <select id="type">
+                        <option value="income">收入</option>
+                        <option value="expense">支出</option>
+                    </select>
+                </label>
+
+                <label>
+                    日期
+                    <input type="date" id="date" required>
+                </label>
+
+                <label>
+                    金額
+                    <input type="number" id="amount"
+                    min="1" placeholder="請輸入金額" required>
+                </label>
+
+                <label>
+                    消費分類
+                    <select id="category">
+                        <option>薪資</option>
+                        <option>飲食</option>
+                        <option>交通</option>
+                        <option>購物</option>
+                        <option>娛樂</option>
+                        <option>居家</option>
+                        <option>醫療</option>
+                        <option>其他</option>
+                    </select>
+                </label>
+
+            </div>
+
+            <p>
+                <label>備註</label>
+                <input type="text" id="note"
+                placeholder="例如：午餐、薪水">
+            </p>
+
+            <button type="submit">＋ 新增紀錄</button>
+
+        </form>
+    </section>
+
+    <section class="panel">
+        <h2>💰 每月預算</h2>
+
+        <label>設定預算金額</label>
+        <input type="number" id="budget"
+        placeholder="例如：20000">
+
+        <button onclick="saveBudget()">儲存預算</button>
+
+        <div class="budget-bar">
+            <div class="budget-fill" id="budgetFill"></div>
+        </div>
+
+        <p id="budgetText">尚未設定預算</p>
+    </section>
+
+    <section class="panel">
+        <h2>📊 收支紀錄</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>日期</th>
+                    <th>項目</th>
+                    <th>分類</th>
+                    <th>金額</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+
+            <tbody id="recordList"></tbody>
+        </table>
+    </section>
+
+    <section class="panel">
+        <h2>📈 每月統計</h2>
+        <input type="month" id="month">
+        <div id="statistics"></div>
+        <div id="categoryStatistics"></div>
+    </section>
+
+</div>
+
+<script>
+// ==============================
+// 我的日常記帳本 JavaScript
+// ==============================
+
+// 讀取以前儲存的資料
+let records = JSON.parse(
+    localStorage.getItem("myRecords") || "[]"
+);
+
+let monthlyBudget = Number(
+    localStorage.getItem("myBudget") || 0
+);
+
+// 今天日期
+document.getElementById("date").value =
+    new Date().toISOString().slice(0, 10);
+
+// 金額格式
+function money(number) {
+    return "$" + Number(number).toLocaleString("zh-TW");
+}
+
+// 儲存資料
+function saveData() {
+    localStorage.setItem(
+        "myRecords",
+        JSON.stringify(records)
+    );
+}
+
+// 新增記帳
+document.getElementById("recordForm")
+.addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    const type = document.getElementById("type").value;
+    const date = document.getElementById("date").value;
+    const amount = Number(document.getElementById("amount").value);
+    const category = document.getElementById("category").value;
+    const note = document.getElementById("note").value;
+
+    if (!date || !Number.isFinite(amount) || amount <= 0) {
+        alert("請輸入正確的日期及金額！");
+        return;
+    }
+
+    const record = {
+        id: Date.now(),
+        type: type,
+        date: date,
+        amount: amount,
+        category: category,
+        note: note
+    };
+
+    records.push(record);
+
+    saveData();
+
+    this.reset();
+
+    document.getElementById("date").value =
+        new Date().toISOString().slice(0, 10);
+
+    updateDisplay();
+});
+
+// 刪除紀錄
+function deleteRecord(id) {
+
+    if (!confirm("確定要刪除這筆紀錄嗎？")) {
+        return;
+    }
+
+    records = records.filter(
+        record => record.id !== id
+    );
+
+    saveData();
+    updateDisplay();
+}
+
+// 設定預算
+function saveBudget() {
+
+    const value = Number(
+        document.getElementById("budget").value
+    );
+
+    if (!Number.isFinite(value) || value < 0) {
+        alert("請輸入有效的預算金額！");
+        return;
+    }
+
+    monthlyBudget = value;
+
+    localStorage.setItem(
+        "myBudget",
+        monthlyBudget
+    );
+
+    updateDisplay();
+
+    alert("預算已成功儲存！");
+}
+
+// 取得目前選擇月份
+function getCurrentMonth() {
+
+    const selected =
+        document.getElementById("month").value;
+
+    return selected ||
+        new Date().toISOString().slice(0, 7);
+}
+
+// 更新所有畫面
+function updateDisplay() {
+
+    const month = getCurrentMonth();
+
+    // 篩選當月紀錄
+    const monthRecords = records.filter(
+        record => record.date.startsWith(month)
+    );
+
+    // 計算收入
+    const income = monthRecords
+        .filter(record => record.type === "income")
+        .reduce((total, record) =>
+            total + record.amount, 0
+        );
+
+    // 計算支出
+    const expense = monthRecords
+        .filter(record => record.type === "expense")
+        .reduce((total, record) =>
+            total + record.amount, 0
+        );
+
+    // 計算結餘
+    const balance = income - expense;
+
+    document.getElementById("income").textContent =
+        money(income);
+
+    document.getElementById("expense").textContent =
+        money(expense);
+
+    document.getElementById("balance").textContent =
+        money(balance);
+
+    // 顯示紀錄
+    const list = document.getElementById("recordList");
+
+    list.innerHTML = "";
+
+    monthRecords
+        .slice()
+        .reverse()
+        .forEach(record => {
+
+            const tr = document.createElement("tr");
+
+            const dateCell = document.createElement("td");
+            dateCell.textContent = record.date;
+
+            const noteCell = document.createElement("td");
+            noteCell.textContent = record.note || "未命名";
+
+            const categoryCell = document.createElement("td");
+            categoryCell.textContent = record.category;
+
+            const amountCell = document.createElement("td");
+            amountCell.textContent =
+                (record.type === "income" ? "+" : "-") +
+                money(record.amount);
+
+            amountCell.style.color =
+                record.type === "income" ? "#43866b" : "#cc7169";
+
+            const actionCell = document.createElement("td");
+
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "刪除";
+            deleteButton.style.padding = "6px 10px";
+            deleteButton.style.fontSize = "12px";
+
+            deleteButton.addEventListener("click", function() {
+                deleteRecord(record.id);
+            });
+
+            actionCell.appendChild(deleteButton);
+
+            tr.append(
+                dateCell,
+                noteCell,
+                categoryCell,
+                amountCell,
+                actionCell
+            );
+
+            list.appendChild(tr);
+        });
+
+    // 更新預算
+    document.getElementById("budget").value =
+        monthlyBudget || "";
+
+    const percent = monthlyBudget > 0
+        ? Math.min(expense / monthlyBudget * 100, 100)
+        : 0;
+
+    document.getElementById("budgetFill").style.width =
+        percent + "%";
+
+    document.getElementById("budgetFill").style.background =
+        expense > monthlyBudget ? "#cc7169" : "#43866b";
+
+    document.getElementById("budgetText").textContent =
+        monthlyBudget > 0
+        ? "已使用 " + money(expense) +
+          "／預算 " + money(monthlyBudget) +
+          "（" + Math.round(expense / monthlyBudget * 100) + "%）"
+        : "尚未設定預算";
+
+    // 分類統計
+    const categories = {};
+
+    monthRecords
+        .filter(record => record.type === "expense")
+        .forEach(record => {
+
+            categories[record.category] =
+                (categories[record.category] || 0) +
+                record.amount;
+
+        });
+
+    const categoryBox =
+        document.getElementById("categoryStatistics");
+
+    categoryBox.innerHTML = "<h3>消費分類統計</h3>";
+
+    Object.entries(categories).forEach(([name, value]) => {
+
+        const p = document.createElement("p");
+
+        p.textContent = name + "：" + money(value);
+
+        categoryBox.appendChild(p);
+
+    });
+
+    // 月份統計
+    document.getElementById("statistics").textContent =
+        "本月收入：" + money(income) +
+        "｜本月支出：" + money(expense) +
+        "｜本月結餘：" + money(balance);
+}
+
+// 月份改變時重新計算
+document.getElementById("month")
+.addEventListener("change", updateDisplay);
+
+// 設定目前月份
+document.getElementById("month").value =
+    new Date().toISOString().slice(0, 7);
+
+// 啟動記帳軟體
+updateDisplay();
+
+</script>
+</body>
+</html>
+
