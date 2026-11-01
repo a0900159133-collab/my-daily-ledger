@@ -1,0 +1,19 @@
+{
+  "name": "我的每日帳簿",
+  "short_name": "每日帳簿",
+  "description": "個人收入與支出記帳本",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f7f5",
+  "theme_color": "#43866b",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
