@@ -1,5 +1,5 @@
 
-const CACHE_NAME = "my-ledger-v3";
+const CACHE_NAME = "my-ledger-v4";
 
 const FILES_TO_CACHE = [
   "./",
