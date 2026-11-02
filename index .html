@@ -1,0 +1,878 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的日常記帳本</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#fbf7ef">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<style>
+* { box-sizing: border-box; }
+
+:root {
+    --cream: #fbf7ef;
+    --card: #fffdf8;
+    --green: #78977c;
+    --green-dark: #5f8065;
+    --pink: #d99a92;
+    --gold: #d7ad64;
+    --text: #514d43;
+    --muted: #969083;
+    --line: #eee6d8;
+}
+
+body {
+    margin: 0;
+    font-family: "Microsoft JhengHei", sans-serif;
+    background: var(--cream);
+    color: var(--text);
+}
+
+header {
+    background: #fffdf8;
+    padding: 28px 20px;
+    text-align: center;
+    border-bottom: 1px solid var(--line);
+}
+
+header h1 {
+    margin: 0;
+    color: var(--green-dark);
+    font-size: 25px;
+}
+
+header p {
+    color: var(--muted);
+    margin: 10px 0 0;
+    font-size: 14px;
+}
+
+.container {
+    max-width: 1050px;
+    margin: 25px auto;
+    padding: 0 16px 40px;
+}
+
+.summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.card, .panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    box-shadow: 0 5px 18px #78694b0d;
+}
+
+.card {
+    padding: 22px;
+}
+
+.card h3 {
+    margin: 0 0 12px;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.card p {
+    margin: 0;
+    font-size: 25px;
+    font-weight: bold;
+    overflow-wrap: anywhere;
+}
+
+.income { color: var(--green-dark); }
+.expense { color: var(--pink); }
+
+.panel {
+    padding: 23px;
+    margin-top: 18px;
+}
+
+.panel h2 {
+    margin: 0 0 20px;
+    font-size: 18px;
+    color: var(--green-dark);
+}
+
+label {
+    display: block;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 7px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: #fffefa;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+}
+
+input:focus, select:focus {
+    border-color: var(--green);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+}
+
+button {
+    border: none;
+    border-radius: 12px;
+    padding: 11px 18px;
+    background: var(--green);
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+button:hover { opacity: .88; }
+
+button.secondary {
+    background: #e9e1d3;
+    color: #625c50;
+}
+
+button.danger {
+    background: #d99a92;
+}
+
+button.small {
+    padding: 7px 10px;
+    font-size: 12px;
+    margin: 2px;
+}
+
+.budget-bar {
+    height: 13px;
+    background: #eee9df;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 15px;
+}
+
+.budget-fill {
+    height: 100%;
+    width: 0;
+    background: var(--green);
+    transition: width .3s;
+}
+
+.budget-text {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    min-width: 560px;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 13px 9px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+    font-size: 13px;
+}
+
+th {
+    color: var(--muted);
+    font-weight: normal;
+}
+
+.empty {
+    color: var(--muted);
+    text-align: center;
+    padding: 25px;
+}
+
+.statistics {
+    line-height: 1.9;
+    color: var(--muted);
+}
+
+.category-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 14px;
+}
+
+.chart-row {
+    display: grid;
+    grid-template-columns: 65px 1fr 85px;
+    align-items: center;
+    gap: 10px;
+    margin: 15px 0;
+    font-size: 12px;
+}
+
+.chart-track {
+    height: 13px;
+    background: #eee9df;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.chart-bar {
+    height: 100%;
+    border-radius: 20px;
+}
+
+.chart-value {
+    text-align: right;
+    color: var(--muted);
+}
+
+.section-note {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: -10px;
+}
+
+.copyright {
+    margin-top: 24px;
+    padding: 18px 12px 8px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.9;
+    text-align: center;
+}
+
+@media(max-width:650px) {
+    header { padding: 23px 15px; }
+    header h1 { font-size: 22px; }
+    .container { margin-top: 16px; }
+    .summary { grid-template-columns: 1fr; gap: 10px; }
+    .card { padding: 17px; }
+    .card p { font-size: 23px; }
+    .panel { padding: 18px; }
+    .form-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>♡ 我的日常記帳本</h1>
+    <p>簡單記錄每一筆，慢慢掌握自己的生活</p>
+</header>
+
+<div class="container">
+
+    <section class="panel">
+        <h2>♡ 新增收支紀錄</h2>
+
+        <form id="recordForm">
+            <div class="form-grid">
+                <label>
+                    收支類型
+                    <select id="type">
+                        <option value="income">收入</option>
+                        <option value="expense">支出</option>
+                    </select>
+                </label>
+
+                <label>
+                    日期
+                    <input type="date" id="date" required>
+                </label>
+
+                <label>
+                    金額
+                    <input type="number" id="amount" min="1"
+                    step="1" placeholder="請輸入金額" required>
+                </label>
+
+                <label>
+                    消費分類
+                    <select id="category">
+                        <option>薪資</option>
+                        <option>飲食</option>
+                        <option>交通</option>
+                        <option>購物</option>
+                        <option>娛樂</option>
+                        <option>居家</option>
+                        <option>醫療</option>
+                        <option>其他</option>
+                    </select>
+                </label>
+            </div>
+
+            <label style="margin-top:15px;">
+                備註
+                <input type="text" id="note" placeholder="例如：午餐、薪水">
+            </label>
+
+            <div class="form-actions">
+                <button type="submit" id="submitButton">＋ 新增紀錄</button>
+                <button type="button" class="secondary"
+                id="cancelEditButton" hidden onclick="cancelEdit()">取消編輯</button>
+            </div>
+        </form>
+    </section>
+    <section class="summary">
+        <div class="card">
+            <h3>本月收入</h3>
+            <p class="income" id="income">$0</p>
+        </div>
+        <div class="card">
+            <h3>本月支出</h3>
+            <p class="expense" id="expense">$0</p>
+        </div>
+        <div class="card">
+            <h3>目前結餘</h3>
+            <p id="balance">$0</p>
+        </div>
+    </section>
+
+    
+
+    <section class="panel">
+        <h2>♡ 每月預算</h2>
+        <label>
+            選擇預算月份
+            <input type="month" id="budgetMonth">
+        </label>
+        <label style="margin-top:12px;">
+            設定預算金額
+            <input type="number" id="budget" min="0"
+            placeholder="例如：20000">
+        </label>
+        <div class="form-actions">
+            <button onclick="saveBudget()">儲存預算</button>
+        </div>
+        <div class="budget-bar">
+            <div class="budget-fill" id="budgetFill"></div>
+        </div>
+        <p class="budget-text" id="budgetText">尚未設定預算</p>
+    </section>
+
+    <section class="panel">
+        <h2>♡ 收支紀錄</h2>
+        <label>
+            查看月份
+            <input type="month" id="month">
+        </label>
+        <div class="table-wrap" style="margin-top:15px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>日期</th>
+                        <th>項目</th>
+                        <th>分類</th>
+                        <th>金額</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="recordList"></tbody>
+            </table>
+        </div>
+        <div class="form-actions">
+            <button type="button" class="secondary" onclick="exportCSV()">
+                匯出 CSV 記帳資料
+            </button>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>♡ 每月統計</h2>
+        <div id="statistics" class="statistics"></div>
+        <h3 style="font-size:15px;color:var(--green-dark);margin-top:20px;">
+            消費分類統計
+        </h3>
+        <div id="categoryStatistics"></div>
+    </section>
+
+    <section class="panel">
+        <h2>♡ 近六個月收支趨勢</h2>
+        <p class="section-note">依照每月收入與支出金額呈現</p>
+        <div id="trendChart"></div>
+    </section>
+
+    <footer class="copyright">
+        © 2026 我的日常記帳本<br>
+        本作品之介面設計、版面配置及程式碼均屬原作者所有。<br>
+        未經原作者同意，不得擅自複製、修改、散布或作商業用途。
+    </footer>
+
+</div>
+
+<script>
+// 日期使用台灣手機的本地時間
+function localDate(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+function localMonth(date = new Date()) {
+    return localDate(date).slice(0, 7);
+}
+
+// 讀取舊版與新版資料
+function readJSON(key, fallback) {
+    try {
+        const value = localStorage.getItem(key);
+        return value ? JSON.parse(value) : fallback;
+    } catch (error) {
+        console.error("資料讀取失敗：", key, error);
+        return fallback;
+    }
+}
+
+const savedNewRecords = localStorage.getItem("dailyLedgerRecords");
+const savedOldRecords = localStorage.getItem("myRecords");
+
+let records = readJSON(
+    savedNewRecords !== null ? "dailyLedgerRecords" : "myRecords",
+    []
+);
+
+if (!Array.isArray(records)) records = [];
+
+records = records.map(record => ({
+    ...record,
+    id: String(record.id ?? Date.now() + Math.random()),
+    amount: Number(record.amount) || 0,
+    note: record.note || "",
+    category: record.category || "其他"
+}));
+
+let budgets = readJSON("dailyLedgerBudgets", {});
+if (!budgets || typeof budgets !== "object" || Array.isArray(budgets)) {
+    budgets = {};
+}
+
+// 將舊版單一預算搬到目前月份
+const oldBudget = localStorage.getItem("myBudget");
+const thisMonth = localMonth();
+
+if (oldBudget !== null && budgets[thisMonth] === undefined) {
+    budgets[thisMonth] = Number(oldBudget) || 0;
+}
+
+let editingId = null;
+
+document.getElementById("date").value = localDate();
+document.getElementById("month").value = thisMonth;
+document.getElementById("budgetMonth").value = thisMonth;
+
+// 金額格式
+function money(number) {
+    return "$" + Number(number || 0).toLocaleString("zh-TW");
+}
+
+// 儲存新舊資料，保留舊版相容性
+function saveData() {
+    localStorage.setItem("dailyLedgerRecords", JSON.stringify(records));
+    localStorage.setItem("myRecords", JSON.stringify(records));
+    localStorage.setItem("dailyLedgerBudgets", JSON.stringify(budgets));
+    localStorage.setItem(
+        "myBudget",
+        String(budgets[localMonth()] || 0)
+    );
+}
+
+// 取得選擇的月份
+function selectedMonth() {
+    return document.getElementById("month").value || localMonth();
+}
+
+// 新增或編輯紀錄
+document.getElementById("recordForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const type = document.getElementById("type").value;
+    const date = document.getElementById("date").value;
+    const amount = Number(document.getElementById("amount").value);
+    const category = document.getElementById("category").value;
+    const note = document.getElementById("note").value.trim();
+
+    if (!date || !Number.isFinite(amount) || amount <= 0) {
+        alert("請輸入正確的日期及金額！");
+        return;
+    }
+
+    if (editingId !== null) {
+        records = records.map(record =>
+            record.id === editingId
+                ? { ...record, type, date, amount, category, note }
+                : record
+        );
+        cancelEdit();
+    } else {
+        records.push({
+            id: String(Date.now()),
+            type,
+            date,
+            amount,
+            category,
+            note
+        });
+        this.reset();
+        document.getElementById("date").value = localDate();
+    }
+
+    saveData();
+    updateDisplay();
+});
+
+// 開始編輯
+function editRecord(id) {
+    const record = records.find(item => item.id === String(id));
+    if (!record) return;
+
+    editingId = record.id;
+
+    document.getElementById("type").value = record.type;
+    document.getElementById("date").value = record.date;
+    document.getElementById("amount").value = record.amount;
+    document.getElementById("category").value = record.category;
+    document.getElementById("note").value = record.note || "";
+
+    document.getElementById("submitButton").textContent = "儲存修改";
+    document.getElementById("cancelEditButton").hidden = false;
+
+    document.querySelector(".container").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
+
+// 取消編輯
+function cancelEdit() {
+    editingId = null;
+    document.getElementById("recordForm").reset();
+    document.getElementById("date").value = localDate();
+    document.getElementById("submitButton").textContent = "＋ 新增紀錄";
+    document.getElementById("cancelEditButton").hidden = true;
+}
+
+// 刪除紀錄
+function deleteRecord(id) {
+    if (!confirm("確定要刪除這筆紀錄嗎？")) return;
+
+    records = records.filter(record => record.id !== String(id));
+
+    if (editingId === String(id)) cancelEdit();
+
+    saveData();
+    updateDisplay();
+}
+
+// 儲存每月預算
+function saveBudget() {
+    const month = document.getElementById("budgetMonth").value;
+    const value = Number(document.getElementById("budget").value);
+
+    if (!month || !Number.isFinite(value) || value < 0) {
+        alert("請輸入有效的月份及預算金額！");
+        return;
+    }
+
+    budgets[month] = value;
+    saveData();
+    updateDisplay();
+    alert("預算已成功儲存！");
+}
+
+// 顯示預算
+function updateBudget(month, expense) {
+    const budget = Number(budgets[month] || 0);
+    document.getElementById("budget").value = budget || "";
+
+    const percent = budget > 0
+        ? Math.min(expense / budget * 100, 100)
+        : 0;
+
+    const fill = document.getElementById("budgetFill");
+    fill.style.width = percent + "%";
+    fill.style.background = expense > budget ? "var(--pink)" : "var(--green)";
+
+    document.getElementById("budgetText").textContent = budget > 0
+        ? `已使用 ${money(expense)}／預算 ${money(budget)}（${Math.round(expense / budget * 100)}%）`
+        : "尚未設定預算";
+}
+
+// 更新分類統計
+function updateCategories(monthRecords) {
+    const categories = {};
+
+    monthRecords
+        .filter(record => record.type === "expense")
+        .forEach(record => {
+            categories[record.category] =
+                (categories[record.category] || 0) + record.amount;
+        });
+
+    const box = document.getElementById("categoryStatistics");
+    box.innerHTML = "";
+
+    const entries = Object.entries(categories)
+        .sort((a, b) => b[1] - a[1]);
+
+    if (entries.length === 0) {
+        box.innerHTML = '<p class="empty">本月還沒有支出紀錄</p>';
+        return;
+    }
+
+    entries.forEach(([name, value]) => {
+        const row = document.createElement("div");
+        row.className = "category-row";
+
+        const nameText = document.createElement("span");
+        nameText.textContent = name;
+
+        const valueText = document.createElement("strong");
+        valueText.textContent = money(value);
+
+        row.append(nameText, valueText);
+        box.appendChild(row);
+    });
+}
+
+// 近六個月趨勢
+function updateTrend() {
+    const box = document.getElementById("trendChart");
+    box.innerHTML = "";
+
+    const months = [];
+
+    for (let i = 5; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(1);
+        date.setMonth(date.getMonth() - i);
+        months.push(localMonth(date));
+    }
+
+    const data = months.map(month => {
+        const items = records.filter(record => record.date.startsWith(month));
+
+        const income = items
+            .filter(record => record.type === "income")
+            .reduce((sum, record) => sum + record.amount, 0);
+
+        const expense = items
+            .filter(record => record.type === "expense")
+            .reduce((sum, record) => sum + record.amount, 0);
+
+        return { month, income, expense };
+    });
+
+    const maxValue = Math.max(
+        1,
+        ...data.flatMap(item => [item.income, item.expense])
+    );
+
+    data.forEach(item => {
+        const group = document.createElement("div");
+        group.style.marginBottom = "20px";
+
+        const title = document.createElement("strong");
+        title.textContent = item.month;
+        title.style.fontSize = "13px";
+        title.style.color = "var(--text)";
+        group.appendChild(title);
+
+        [
+            { name: "收入", value: item.income, color: "var(--green)" },
+            { name: "支出", value: item.expense, color: "var(--pink)" }
+        ].forEach(series => {
+            const row = document.createElement("div");
+            row.className = "chart-row";
+
+            const label = document.createElement("span");
+            label.textContent = series.name;
+
+            const track = document.createElement("div");
+            track.className = "chart-track";
+
+            const bar = document.createElement("div");
+            bar.className = "chart-bar";
+            bar.style.width = (series.value / maxValue * 100) + "%";
+            bar.style.background = series.color;
+            track.appendChild(bar);
+
+            const value = document.createElement("span");
+            value.className = "chart-value";
+            value.textContent = money(series.value);
+
+            row.append(label, track, value);
+            group.appendChild(row);
+        });
+
+        box.appendChild(group);
+    });
+}
+
+// 更新所有畫面
+function updateDisplay() {
+    const month = selectedMonth();
+
+    const monthRecords = records.filter(record =>
+        record.date && record.date.startsWith(month)
+    );
+
+    const income = monthRecords
+        .filter(record => record.type === "income")
+        .reduce((sum, record) => sum + record.amount, 0);
+
+    const expense = monthRecords
+        .filter(record => record.type === "expense")
+        .reduce((sum, record) => sum + record.amount, 0);
+
+    document.getElementById("income").textContent = money(income);
+    document.getElementById("expense").textContent = money(expense);
+    document.getElementById("balance").textContent = money(income - expense);
+
+    // 顯示紀錄
+    const list = document.getElementById("recordList");
+    list.innerHTML = "";
+
+    if (monthRecords.length === 0) {
+        list.innerHTML = '<tr><td colspan="5" class="empty">這個月還沒有記帳紀錄</td></tr>';
+    } else {
+        monthRecords.slice().sort((a, b) =>
+            b.date.localeCompare(a.date)
+        ).forEach(record => {
+            const tr = document.createElement("tr");
+
+            const dateCell = document.createElement("td");
+            dateCell.textContent = record.date;
+
+            const noteCell = document.createElement("td");
+            noteCell.textContent = record.note || "未命名";
+
+            const categoryCell = document.createElement("td");
+            categoryCell.textContent = record.category;
+
+            const amountCell = document.createElement("td");
+            amountCell.textContent =
+                (record.type === "income" ? "+" : "-") + money(record.amount);
+            amountCell.style.color =
+                record.type === "income" ? "var(--green-dark)" : "var(--pink)";
+
+            const actionCell = document.createElement("td");
+
+            const editButton = document.createElement("button");
+            editButton.textContent = "編輯";
+            editButton.className = "small secondary";
+            editButton.addEventListener("click", () => editRecord(record.id));
+
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "刪除";
+            deleteButton.className = "small danger";
+            deleteButton.addEventListener("click", () => deleteRecord(record.id));
+
+            actionCell.append(editButton, deleteButton);
+            tr.append(dateCell, noteCell, categoryCell, amountCell, actionCell);
+            list.appendChild(tr);
+        });
+    }
+
+    document.getElementById("statistics").textContent =
+        `本月收入：${money(income)}｜本月支出：${money(expense)}｜本月結餘：${money(income - expense)}`;
+
+    updateBudget(
+        document.getElementById("budgetMonth").value || localMonth(),
+        records
+            .filter(record => record.date &&
+                record.date.startsWith(document.getElementById("budgetMonth").value || localMonth()) &&
+                record.type === "expense")
+            .reduce((sum, record) => sum + record.amount, 0)
+    );
+
+    updateCategories(monthRecords);
+    updateTrend();
+}
+
+// 匯出 CSV
+function exportCSV() {
+    if (records.length === 0) {
+        alert("目前沒有可以匯出的紀錄！");
+        return;
+    }
+
+    const rows = [
+        ["日期", "收支類型", "金額", "分類", "備註"],
+        ...records.map(record => [
+            record.date,
+            record.type === "income" ? "收入" : "支出",
+            record.amount,
+            record.category,
+            record.note || ""
+        ])
+    ];
+
+    const csv = "\uFEFF" + rows.map(row =>
+        row.map(value =>
+            '"' + String(value).replace(/"/g, '""') + '"'
+        ).join(",")
+    ).join("\r\n");
+
+    const blob = new Blob([csv], {
+        type: "text/csv;charset=utf-8;"
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "我的日常記帳本.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+}
+
+// 月份切換
+document.getElementById("month").addEventListener("change", updateDisplay);
+
+document.getElementById("budgetMonth").addEventListener("change", updateDisplay);
+
+// 啟動
+saveData();
+updateDisplay();
+
+// 離線功能
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js")
+            .then(() => console.log("記帳本離線功能已啟動"))
+            .catch(error => console.log("離線功能啟動失敗", error));
+    });
+}
+</script>
+
+</body>
+</html>
